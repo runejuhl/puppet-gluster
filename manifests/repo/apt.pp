@@ -3,7 +3,8 @@
 #
 # @param version The version to use when building the repo URL
 # @param release The release to use when building the repo URL
-# @param priority Apt pin priority to set for the Gluster repo
+# @param priority
+#   The priority for the apt/yum repository. Useful to overwrite other repositories like EPEL
 #
 # Currently only released versions are supported.  If you want to use
 # QA releases or pre-releases, you'll need to edit line 54 below
@@ -24,18 +25,20 @@
 # @note Copyright 2015 RL Solutions, unless otherwise noted
 #
 class gluster::repo::apt (
-  $version            = $gluster::version,
-  String[1] $release  = $gluster::release,
-  $priority           = $gluster::repo_priority,
+  $version,
+  String[1] $release,
+  $priority,
+  Variant[Stdlib::Absolutepath,Stdlib::HTTPSUrl] $repo_key_source,
 ) {
+
+  assert_private()
+
   include 'apt'
 
   $repo_key_name = $release ? {
     '4.1'   => 'EED3351AFD72E5437C050F0388F6CDEE78FA6D97',
     default => 'F9C958A3AEE0D2184FAD1CBD43607F0DC2F8238C',
   }
-
-  $repo_key_source = "https://download.gluster.org/pub/gluster/glusterfs/${release}/rsa.pub"
 
   # basic sanity check
   if $version == 'LATEST' {
